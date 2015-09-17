@@ -31,6 +31,7 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
 
+
 /**
  * A class used to display the viewer for a simple HTML browser.
  * 
@@ -65,6 +66,7 @@ public class BrowserView {
     private ComboBox<String> myFavorites;
     // get strings from resource file
     private ResourceBundle myResources;
+    
     // the data
     private BrowserModel myModel;
 
@@ -75,6 +77,8 @@ public class BrowserView {
         myModel = model;
         // use resources for labels
         myResources = ResourceBundle.getBundle(DEFAULT_RESOURCE_PACKAGE + language);
+        
+        myFavorites = new ComboBox<String>();
         BorderPane root = new BorderPane();
         // must be first since other panels may refer to page
         root.setCenter(makePageDisplay());
@@ -82,9 +86,11 @@ public class BrowserView {
         root.setBottom(makeInformationPanel());
         // control the navigation
         enableButtons();
+        
+        
         // create scene to hold UI
         myScene = new Scene(root, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
-        //myScene.getStylesheets().add(DEFAULT_RESOURCE_PACKAGE + STYLESHEET);
+        myScene.getStylesheets().add(DEFAULT_RESOURCE_PACKAGE + STYLESHEET);
     }
 
     /**
@@ -141,7 +147,12 @@ public class BrowserView {
 
     // change page to favorite choice
     private void showFavorite (String favorite) {
-        showPage(myModel.getFavorite(favorite).toString());
+    	try {
+    		showPage(myModel.getFavorite(favorite).toString());
+    	} catch (BrowserException e) {
+    	    throw e;
+    	}
+        
     }
 
     // update just the view to display given URL
@@ -225,6 +236,16 @@ public class BrowserView {
             myModel.setHome();
             enableButtons();
         }));
+        result.getChildren().add(makeButton("SetFavoriteCommand", event -> {
+        	addFavorite();
+        })); 
+        result.getChildren().add(myFavorites);
+        myFavorites.valueProperty().addListener(new ChangeListener<String>() {
+        	@Override
+        	public void changed(ObservableValue ov, String t, String t1){
+        		showFavorite(t1);
+        	}
+        });
         return result;
     }
 

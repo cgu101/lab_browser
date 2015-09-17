@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 
 /**
@@ -15,6 +16,8 @@ import java.util.Map;
 public class BrowserModel {
     // constants
     public static final String PROTOCOL_PREFIX = "http://";
+    public static final String DEFAULT_RESOURCE_PACKAGE = "resources/";
+    private ResourceBundle myErrors;
     // state
     private URL myHome;
     private URL myCurrentURL;
@@ -26,7 +29,8 @@ public class BrowserModel {
     /**
      * Creates an empty model.
      */
-    public BrowserModel () {
+    public BrowserModel (String s) {
+    	myErrors = ResourceBundle.getBundle(DEFAULT_RESOURCE_PACKAGE + s);
         myHome = null;
         myCurrentURL = null;
         myCurrentIndex = -1;
@@ -115,11 +119,12 @@ public class BrowserModel {
     /**
      * Returns URL from favorites associated with given name, null if none set.
      */
-    public URL getFavorite (String name) {
-        if (name != null && !name.equals("") && myFavorites.containsKey(name)) {
-            return myFavorites.get(name);
-        }
-        return null;
+    public URL getFavorite (String name) throws BrowserException {
+    		if( name != null && !name.equals("") && myFavorites.containsKey(name)) {
+    			return myFavorites.get(name);
+    		} else {
+    			throw new BrowserException(myErrors.getString("BrowserException"));
+    		}
     }
 
     // deal with a potentially incomplete URL
